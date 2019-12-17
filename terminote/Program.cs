@@ -191,14 +191,22 @@ namespace terminote
 
         private static void TakeNotes(Settings settings)
         {
+            const string prompt = "terminote> ";
             while (true)
             {
-                Console.Write("terminote> ");
+                Console.Write(prompt);
                 string currentInput = Console.ReadLine();
                 if (currentInput.ToLower() == ":q" || currentInput.ToLower() == "q:") // to account for typos
                 {
                     break; 
                 }
+
+                if (currentInput.ToLower() == ":s") 
+                {
+                    SetSettings(settings);
+                    continue;
+                }
+
 
                 string newLine = DateTime.Now.ToString(settings.DateTimeFormat) + settings.LineStartChar + " " + currentInput;
                 try
@@ -211,7 +219,7 @@ namespace terminote
                     Console.WriteLine(ex.Message);
                 }
 
-                Console.SetCursorPosition(Console.CursorLeft, Console.CursorTop - GetLineOffset(newLine));                
+                Console.SetCursorPosition(Console.CursorLeft, Console.CursorTop - GetLineOffset(prompt + currentInput));                
 
                 Console.WriteLine(newLine);
             }
