@@ -8,9 +8,9 @@ To exit type :q and press enter.
 
 ## Interface
   
-01/12/2040 4:30PM> A man walked in
-01/12/2040 4:33PM> He has a gun
-terminote> 
+01/12/2040 4:30PM> A man walked in  
+01/12/2040 4:33PM> He has a gun  
+terminote>   
 
 ## Settings
 
