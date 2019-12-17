@@ -202,15 +202,8 @@ namespace terminote
 
                 string newLine = DateTime.Now.ToString(settings.DateTimeFormat) + settings.LineStartChar + " " + currentInput;
                 try
-                {
-                    if (File.Exists(settings.FileLocation))
-                    {
-                        File.AppendAllText(settings.FileLocation, newLine + Environment.NewLine);
-                    }
-                    else
-                    {
-                        File.AppendAllText(settings.FileLocation, newLine + Environment.NewLine, settings.Encoding);
-                    }
+                {                    
+                    File.AppendAllText(settings.FileLocation, newLine + Environment.NewLine, settings.Encoding);
                 }
                 catch (Exception ex)
                 {
