@@ -88,7 +88,8 @@ namespace terminote.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Usage: terminote [filename] [--settings].
+        ///   Looks up a localized string similar to Usage: terminote [filename] [--settings]
+        ///To edit setting while the application is running type in :s and press enter.
         /// </summary>
         internal static string ShortHelp {
             get {

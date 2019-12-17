@@ -127,6 +127,7 @@
     <value>To EXIT type :q and press enter or press Ctrl + C</value>
   </data>
   <data name="ShortHelp" xml:space="preserve">
-    <value>Usage: terminote [filename] [--settings]</value>
+    <value>Usage: terminote [filename] [--settings]
+To edit setting while the application is running type in :s and press enter</value>
   </data>
 </root>
