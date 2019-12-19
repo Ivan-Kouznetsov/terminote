@@ -15,126 +15,123 @@ typedef sds string;
 
 void tryPrintLines(string filename, unsigned long lineCount)
 {
-    FILE *read;
-    string currentLine = sdsempty();
-    string *lines = vector_create();
-    size_t currentLength = 0;
-    ssize_t readResult;
+	FILE* read;
+	string currentLine = sdsempty();
+	string* lines = vector_create();
+	size_t currentLength = 0;
+	ssize_t readResult;
 
-    if ((read = fopen(filename, "r")) != NULL)
-    {
-        while ((readResult = getline(&currentLine, &currentLength, read)) != -1) {
-             vector_add(&lines, sdsnew(currentLine));
-        }
+	if ((read = fopen(filename, "r")) != NULL)
+	{
+		while ((readResult = getline(&currentLine, &currentLength, read)) != -1) {
+			vector_add(&lines, sdsnew(currentLine));
+		}
 
-        lineCount = (unsigned long)fmin(lineCount, vector_size(lines));
+		lineCount = (unsigned long)fmin(lineCount, vector_size(lines));
 
-        for (unsigned long i = vector_size(lines) - lineCount; i<vector_size(lines); i++)
-        {
-            printf("%s", lines[i]);
-        }
+		for (unsigned long i = vector_size(lines) - lineCount; i < vector_size(lines); i++)
+		{
+			printf("%s", lines[i]);
+		}
 
-        for (unsigned long i = 0; i<vector_size(lines); i++)
-        {
-            sdsfree(lines[i]);
-        }
-        fclose(read);
-    }
+		for (unsigned long i = 0; i < vector_size(lines); i++)
+		{
+			sdsfree(lines[i]);
+		}
+		fclose(read);
+	}
 }
 
 int getLineOffset(size_t stringLength)
 {
-    struct winsize consoleSize;
-    ioctl(STDOUT_FILENO, TIOCGWINSZ, &consoleSize);
+	struct winsize consoleSize;
+	ioctl(STDOUT_FILENO, TIOCGWINSZ, &consoleSize);
 
-    double consoleColumns = consoleSize.ws_col;
+	double consoleColumns = consoleSize.ws_col;
 
-    return (int)(ceil(stringLength/consoleColumns));
+	return (int)(ceil(stringLength / consoleColumns));
 }
 
 string intToString(int i)
 {
-    string result;
-    sprintf(result,"%d",i);
-    return result;
+	string result;
+	sprintf(result, "%d", i);
+	return result;
 }
 
 string formatTime(time_t time)
 {
-    struct tm* timeinfo = localtime(&time);
-    char result[80];
-    strftime(result, sizeof(result), "%a %Y-%m-%d %H:%M:%S %Z", timeinfo);
+	struct tm* timeinfo = localtime(&time);
+	char result[80];
+	strftime(result, sizeof(result), "%a %Y-%m-%d %H:%M:%S %Z", timeinfo);
 
-    return sdsnew(result);
+	return sdsnew(result);
 }
 
-string addStrings(string a, string b)
+int main(int argc, char* argv[])
 {
-    return sdscat(a,b);
-}
+	const string prompt = sdsnew("terminote> ");
+	const string defaultFilename = sdsnew("terminote.log");
+	string timestamp = sdsempty();
+	string currentEntry = sdsempty();
 
-int main(int argc, char *argv[])
-{
-    const string prompt = sdsnew("terminote> ");
-    const string defaultFilename = sdsnew("terminote.log");
-    string timestamp = sdsempty();
-    string currentEntry = sdsempty();
+	const unsigned long linesToShow = 10;
 
-    const unsigned long linesToShow = 10;
+	string filename = sdsnew(defaultFilename);
+	string userInput;
+	size_t userInputLength = 0;
+	ssize_t userInputReadResult = 0;
 
-    string filename = sdsnew(defaultFilename);
-    string userInput;
-    size_t userInputLength = 0;
-    ssize_t userInputReadResult = 0;
+	if (argc == 1)
+	{
+		printf("%s\n", defaultFilename);
+	}
+	else if (argc == 2) {
+		filename = argv[1];
+	}
+	else {
+		printf("%s\n", "Usage: terminote [filename]");
+	}
 
-    if (argc==1)
-    {
-        printf("%s\n",defaultFilename);
-    }else if (argc==2){
-        filename = argv[1];
-    }else{
-        printf("%s\n","Usage: terminote [filename]");
-    }
+	tryPrintLines(filename, linesToShow);
 
-    tryPrintLines(filename, linesToShow);
+	FILE* notesFile;
 
-    FILE *notesFile;
+	if ((notesFile = fopen(filename, "a+")) != NULL)
+	{
+		while (1)
+		{
+			printf("%s", prompt);
 
-    if ((notesFile = fopen(filename,"a+")) != NULL)
-    {
-        while(1)
-        {
-            printf("%s",prompt);
+			userInputReadResult = getline(&userInput, &userInputLength, stdin);
 
-            userInputReadResult = getline(&userInput,&userInputLength, stdin);
+			if (strcmp(userInput, ":q\n") == 0)
+			{
+				fclose(notesFile);
+				return EXIT_SUCCESS;
+			}
 
-            if (strcmp(userInput,":q\n")==0)
-            {
-                fclose(notesFile);
-                return EXIT_SUCCESS;
-            }
+			time_t now;
+			time(&now);
+			timestamp = sdscat(formatTime(now), "> ");
+			currentEntry = sdscat(timestamp, userInput);
 
-            time_t now;
-            time(&now);
-            timestamp = addStrings(formatTime(now),"> ");
-            currentEntry = addStrings(timestamp,userInput);
+			for (int i = 0; i < getLineOffset(sdslen(prompt) + sdslen(userInput)); i++)
+			{
+				printf("%s", UP_ESCAPE);
+			}
 
-            for (int i=0; i<getLineOffset(sdslen(prompt) + sdslen(userInput)); i++)
-            {
-                printf("%s",UP_ESCAPE);
-            }
+			printf("%s", RETURN_TO_START_ESCAPE);
 
-            printf("%s", RETURN_TO_START_ESCAPE);
+			// write to file
 
-            // write to file
+			fprintf(notesFile, "%s", currentEntry);
 
-            fprintf(notesFile,"%s",currentEntry);
+			// show entry on screen
 
-            // show entry on screen
+			printf("%s", currentEntry);
+		}
+	}
 
-            printf("%s",currentEntry);
-        }
-    }
-
-    return EXIT_SUCCESS;
+	return EXIT_SUCCESS;
 }
