@@ -52,13 +52,6 @@ int getLineOffset(size_t stringLength)
 	return (int)(ceil(stringLength / consoleColumns));
 }
 
-string intToString(int i)
-{
-	string result;
-	sprintf(result, "%d", i);
-	return result;
-}
-
 string formatTime(time_t time)
 {
 	struct tm* timeinfo = localtime(&time);
