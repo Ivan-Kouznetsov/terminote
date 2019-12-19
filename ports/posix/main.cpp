@@ -82,13 +82,18 @@ int main(int argc, char* argv[])
 	{
 		cout << prompt;
 		getline(cin, userInput);
+
+		if (userInput == ":q")
+		{
+			notesFile.close();
+			return EXIT_SUCCESS;
+		}
+
 		time_t now = chrono::system_clock::to_time_t(chrono::system_clock::now());
 		stringstream timestamp;
 		timestamp << put_time(localtime(&now), "%F %T");
 
 		string currentEntry = timestamp.str() + "> " + userInput;
-
-		if (userInput == ":q") return EXIT_SUCCESS;
 
 		for (int i = 0; i < getLineOffset(prompt + userInput); i++) {
 			cout << UP_ESCAPE;
